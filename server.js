@@ -5,6 +5,8 @@ var rediz = require("redis"),
     redis = rediz.createClient()
 var bluebird = require('bluebird');
 var WechatAPI = require('wechat-api');
+var https = require('https');
+var fs = require('fs');
 
 bluebird.promisifyAll(rediz.RedisClient.prototype);
 bluebird.promisifyAll(rediz.Multi.prototype);
@@ -18,23 +20,22 @@ var sys = require('sys'),
 var app = express();
 var wechat = require('wechat');
 
+var options = {
+    key: fs.readFileSync('ssl/server-key.pem'),
+    cert: fs.readFileSync('ssl/server-crt.pem'),
+    ca: fs.readFileSync('ssl/ca-crt.pem'),
+};
+
 redis.on('error', function(err) {
     console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
 });
 
+function callback(err) {
+    console.log(err);
+    return err
+}
 // init wechat api
-var api = new WechatAPI('wx987b7963b6cbf3e2', 'oj3bmyaxodgrxdkimbbohhgb2j1kfrgs', function(callback) {
-    // 传入一个获取全局token的方法
-    redis.get(getKey(word), function(err, record) {
-        if (err) return ''
-        else
-            return record
-    })
-}, function(token, callback) {
-    redis.set('access_token', token)
-});
-
-
+var api = new WechatAPI('wx987b7963b6cbf3e2', 'b3731adce531050a30fd94da3fc36c76');
 
 
 
@@ -128,11 +129,14 @@ function handleMessage(message, req, res, next) {
         });
     } else if (message.Content.startsWith('666')) {
 
-        var response = api.getAccessToken
-        res.reply({
-            content: response,
-            type: 'text'
-        });
+        var response = api.getAccessToken(function(err, token) {
+            result = JSON.stringify(err) + '***' + JSON.stringify(token)
+            res.reply({
+                content: result,
+                type: 'text'
+            });
+        })
+
 
     } else if (message.Content.startsWith('/::)')) {
         var word = message.Content.substring('/::)'.length).trim()
@@ -185,7 +189,7 @@ function getKey(word) {
 }
 
 //create node.js http server and listen on port
-var server = http.createServer(app).listen(80, function() {
+var server = https.createServer(options, app).listen(443, function() {
 
     var host = server.address().address
     var port = server.address().port
