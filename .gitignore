@@ -1,3 +1,5 @@
 # exclude everything except directory foo/bar
 dockers1/**
 dockers/**
+node_modules/
+.idea/
