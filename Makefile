@@ -3,7 +3,8 @@ init:
 	apt -y install nodejs-legacy
 	apt -y install nam
 	npm install -g forever
-	docker load -i $(CURDIR)/dockers/redis/.redis
+	#docker load -i $(CURDIR)/dockers/redis/.redis
+	docker pull redis
 	docker load -i $(CURDIR)/dockers/slimerjs/.slimerjs_x
 	npm install
 
@@ -34,7 +35,7 @@ start_redis:
 	-v $(CURDIR)/node_storage/redis:/data \
 	-v $(CURDIR)/redis.conf:/usr/local/etc/redis/redis.conf \
 	--name redis1 redis \
-	redis-server /usr/local/etc/redis/redis.conf &>> redis_log
+	redis-server /usr/local/etc/redis/redis.conf >> redis_log
 
 
 check_redis:
