@@ -11,7 +11,11 @@ var fs = require('fs');
 bluebird.promisifyAll(rediz.RedisClient.prototype);
 bluebird.promisifyAll(rediz.Multi.prototype);
 
-var resMap = new Map();
+var handlerDemoServer = require('./src/demoServer')
+
+testMode = true
+
+
 
 var sys = require('sys'),
     exec = require('child_process').exec;
@@ -19,23 +23,37 @@ var sys = require('sys'),
 //var express = Express();
 var app = express();
 var wechat = require('wechat');
+redis.on('error', function(err) {
+    console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
+});
 
-var options = {
+var sslOptions = {
     key: fs.readFileSync('ssl/server-key.pem'),
     cert: fs.readFileSync('ssl/server-crt.pem'),
     ca: fs.readFileSync('ssl/ca-crt.pem'),
 };
 
-redis.on('error', function(err) {
-    console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
-});
+if (!testMode) {
+    //real 
+    var wechatConfig = {
+        token: 'oj3bmyaxodgrxdkimbbohhgb2j1kfrgs',
+        appid: 'wx987b7963b6cbf3e2',
+        encodingAESKey: 'FFK1ERSHo4rrr7QkeltEFVt4jYjYBGAjmv0SJZ2oSVx',
+        checkSignature: false // 可选，默认为true。由于微信公众平台接口调试工具在明文模式下不发送签名，所以如要使用该测试工具，请将其设置为false
+    };
 
-function callback(err) {
-    console.log(err);
-    return err
+    // init wechat api
+    var api = new WechatAPI('wx987b7963b6cbf3e2', 'b3731adce531050a30fd94da3fc36c76');
+} else {
+    //test tokens
+    var wechatConfig = {
+        token: 'oj3bmyaxodgrxdkimbbohhgb2j1kfrgs',
+        appid: 'wx1193af7037eb6f76',
+        encodingAESKey: 'FFK1ERSHo4rrr7QkeltEFVt4jYjYBGAjmv0SJZ2oSVx',
+        checkSignature: false // 可选，默认为true。由于微信公众平台接口调试工具在明文模式下不发送签名，所以如要使用该测试工具，请将其设置为false
+    };
+    var api = new WechatAPI('wx1193af7037eb6f76', 'bf2271c652870f76be20c3afbb4deab4');
 }
-// init wechat api
-var api = new WechatAPI('wx987b7963b6cbf3e2', 'b3731adce531050a30fd94da3fc36c76');
 
 
 
@@ -54,6 +72,7 @@ var wechat_test = function(config, func) {
                 res.send(JSON.stringify(json))
             }
         } else {
+            console.log('errorevent - ');
             fun = wechat(config, func)
         }
         fun(req, res, next);
@@ -62,48 +81,12 @@ var wechat_test = function(config, func) {
 }
 
 
-var config = {
-    token: 'oj3bmyaxodgrxdkimbbohhgb2j1kfrgs',
-    appid: 'wx987b7963b6cbf3e2',
-    encodingAESKey: 'FFK1ERSHo4rrr7QkeltEFVt4jYjYBGAjmv0SJZ2oSVx',
-    checkSignature: false // 可选，默认为true。由于微信公众平台接口调试工具在明文模式下不发送签名，所以如要使用该测试工具，请将其设置为false
-};
+
 
 app.use(express.query());
 
-app.use('/wechat', wechat_test(config, function(req, res, next) {
 
-    // console.log(req);
-    //res.reply("aaaaa");
-    // 微信输入信息都在req.weixin上
-    var message = req.weixin;
-
-    console.log(JSON.stringify(message));
-
-    if (message && message.MsgId) {
-        console.log("verifiey request type over ") + message.MsgId;
-        if (resMap.get(message.MsgId)) {
-            console.log("has request record" + message.MsgId);
-            if (resMap.get(message.MsgId) === 'over') {
-                console.log("this request was over" + message.MsgId);
-                return;
-            }
-            console.log("this request was handled " + message.MsgId);
-            resMap.set(message.MsgId, res);
-        } else {
-            console.log("handle request " + message.MsgId);
-            resMap.set(message.MsgId, res);
-            handleMessage(message, req, res, next);
-        }
-    } else {
-        console.log("unknown message");
-        res.reply(JSON.stringify(message));
-    }
-
-
-
-
-}));
+app.use('/wechat', wechat_test(wechatConfig, handlerDemoServer.handleMessage));
 
 function handleMessage(message, req, res, next) {
     if (message.FromUserName === 'diaosi') {
@@ -129,7 +112,7 @@ function handleMessage(message, req, res, next) {
         });
     } else if (message.Content.startsWith('666')) {
 
-        var response = api.getAccessToken(function(err, token) {
+        var response = api.getToken(function(err, token) {
             result = JSON.stringify(err) + '***' + JSON.stringify(token)
             res.reply({
                 content: result,
@@ -189,7 +172,7 @@ function getKey(word) {
 }
 
 //create node.js http server and listen on port
-var server = https.createServer(options, app).listen(443, function() {
+var server = https.createServer(sslOptions, app).listen(443, function() {
 
     var host = server.address().address
     var port = server.address().port
