@@ -5,7 +5,7 @@ init:
 	npm install -g forever
 	#docker load -i $(CURDIR)/dockers/redis/.redis
 	docker pull redis
-	docker load -i $(CURDIR)/dockers/slimerjs/.slimerjs_x
+	make container
 	npm install
 
 

@@ -1,5 +1,4 @@
 #
-# For Mobile Access CI: Android v0.1
 #
 
 FROM havnesvo/slimerjs
