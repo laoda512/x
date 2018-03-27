@@ -1,7 +1,7 @@
 {
     "dependencies": {
         "bluebird": "latest",
-        "body-parser": "^1.17.2",
+        "body-parser": "latest",
         "compression": "^1.7.0",
         "connect": "^3.6.2",
         "cookie-session": "^2.0.0-beta.2",

@@ -30,12 +30,12 @@ capture:
 
 
 start_redis:
-	docker run  --rm \
+	nohup docker run  --rm \
 	-p 6379:6379 \
 	-v $(CURDIR)/node_storage/redis:/data \
 	-v $(CURDIR)/redis.conf:/usr/local/etc/redis/redis.conf \
 	--name redis1 redis \
-	redis-server /usr/local/etc/redis/redis.conf >> redis_log
+	redis-server /usr/local/etc/redis/redis.conf >> redis_log 2>&1 &
 
 
 check_redis:

@@ -17,7 +17,7 @@ var API = function (inClient) {
 
 API.prototype.handleMessage = function (req, res, next) {
 
-    console.log('req');
+    console.log('demo server handleMessage');
     var message = req.weixin;
 
     console.log(JSON.stringify(message));

@@ -2,4 +2,8 @@
 dockers1/**
 dockers/**
 node_modules/
+node_modules/**
+node_storage/**
+node_storage/
 .idea/
+log/**
