@@ -7,8 +7,7 @@ var http = require('http');
 var https = require('https');
 var rediz = require("redis"),
     redis = rediz.createClient()
-var sys = require('sys'),
-    exec = require('child_process').exec;
+var sys = require('sys')
 var wechat = require('wechat');
 var bluebird = require('bluebird');
 var WechatAPI = require('wechat-api');
@@ -29,7 +28,7 @@ var bodyParser = requestPrinter.bodyParser
 var rawDataPrinter = requestPrinter.rawDataPrinter({isEnable: true})
 //use test server or not
 var testMode = true;
-var fakeMode = true;
+var fakeMode = false;
 
 redis.on('error', function (err) {
     console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
@@ -68,10 +67,19 @@ app.use(express.query());
 app.use(session({secret: 'keyboard cat', cookie: {maxAge: 60000}}));
 app.use('/wechat', bodyParser)
 app.use('/wechat', fakeResponse({isEnable: false}))
-app.use('/wechat', new FakeRequest(true).getFakeRequest)
+app.use('/wechat', new FakeRequest(fakeMode).getFakeRequest)
 //app.use('/wechat', rawDataPrinter)
-
-app.use('/wechat', wechat(wechatConfig, handler_demoServer.handleMessage))
+var List = require('wechat').List;
+List.add('view', [
+    ['回复{a}查看我的性别', function (info, req, res) {
+        res.reply('我是个妹纸哟');
+    }],
+    ['回复{b}查看我的年龄', function (info, req, res) {
+        res.reply('我今年18岁');
+    }],
+    ['回复{c}查看我的性取向', '这样的事情怎么好意思告诉你啦- -']
+]);
+app.use('/wechat', wechat(wechatConfig, wechat.text( handler_demoServer.handleMessage)));
 
 //create node.js http server and listen on port
 var server = https.createServer(sslOptions, app).listen(443, function () {

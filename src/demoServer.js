@@ -1,4 +1,6 @@
 "use strict";
+var exec = require('child_process').exec;
+
 
 var resMap = new Map(); //TODO: store in redis
 var dbClient;
@@ -15,12 +17,22 @@ var API = function (inClient) {
 
 
 
-API.prototype.handleMessage = function (req, res, next) {
+API.prototype.handleMessage = function (info,req, res, next) {
 
     console.log('demo server handleMessage');
     var message = req.weixin;
 
-    console.log(JSON.stringify(message));
+    console.log(JSON.stringify(message) + JSON.stringify(req.wxsession));
+
+    if (req.weixin.Content === 'list') {
+        res.wait('view');
+        return;
+    } else {
+        res.reply('hehe');
+        return
+        // 或者中断等待回复事务
+        // res.nowait('hehe');
+    }
     //Wechat server will resend request if there is no response in 5s.
     // Ignore if the message is already handled
     //TODO: refine this in an elegant, easy reading way
@@ -236,6 +248,7 @@ function getKey(word) {
 function isEmpty(obj) {
     return Object.keys(obj).length === 0;
 }
+
 //parse words module, end *********************
 
 
