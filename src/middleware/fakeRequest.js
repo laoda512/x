@@ -1,6 +1,10 @@
 
 /**
  * Created by cwang on 3/27/18.
+ * allow fake request which only contains key message like
+ * !curl -k -X POST -H 'Content-Type: application/json' -d '{"Content":"/::)happily"}' https://localhost:443/wechat
+ * see the node.ipynb for more details
+ *
  */
 "use strict";
 var merge = require('../util/merge')
@@ -20,7 +24,7 @@ module.exports = class fakeRequest {
                 "CreateTime": "1503504430",
                 "MsgType": "text",
                 "Content": "/::)happily",
-                "MsgId": "6457502356607278610"
+                "MsgId": new Date().getMilliseconds().toString()
             }, req.body)
 
             res.reply = function (json) {

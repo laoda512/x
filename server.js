@@ -1,8 +1,8 @@
 'use strict'
 //TODO: move into src/
-
 var connect = require('connect');
 var express = require('express');
+var app = express();
 var http = require('http');
 var https = require('https');
 var rediz = require("redis"),
@@ -30,10 +30,6 @@ var rawDataPrinter = requestPrinter.rawDataPrinter({isEnable: true})
 //use test server or not
 var testMode = true;
 var fakeMode = true;
-
-
-
-var app = express();
 
 redis.on('error', function (err) {
     console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
@@ -67,11 +63,6 @@ if (!testMode) {
     };
     var api = new WechatAPI('wx1193af7037eb6f76', 'bf2271c652870f76be20c3afbb4deab4');
 }
-
-//enable printing redis error
-redis.on('error', function (err) {
-    console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
-});
 
 app.use(express.query());
 app.use(session({secret: 'keyboard cat', cookie: {maxAge: 60000}}));
