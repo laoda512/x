@@ -84,7 +84,7 @@ function handleMessage(message, req, res, next) {
 
         //TODO: move this into a seperate module
         var word = message.Content.substring('/::)'.length).trim()
-        redis.get(getKey(word), function (err, record) {
+        dbClient.get(getKey(word), function (err, record) {
             if (record) {
                 handleResponse(JSON.parse(record), message)
             } else {
@@ -97,7 +97,7 @@ function handleMessage(message, req, res, next) {
                         var response = handleDicts(stdout, word);
 
                         if (response.isSuccess) {
-                            redis.set(getKey(word), JSON.stringify(response))
+                            dbClient.set(getKey(word), JSON.stringify(response))
                         }
 
                         handleResponse(response, message)
@@ -143,7 +143,7 @@ function handleDicts(stdout, word) {
             case "not_found":
                 response.content = 'This word is not exist.'
                 response.isSuccess = false;
-                redis.set("word:" + word, response);
+                dbClient.set("word:" + word, response);
                 break;
             case "timeout":
                 response.content = 'Request timeout.'

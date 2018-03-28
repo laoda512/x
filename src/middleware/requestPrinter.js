@@ -8,7 +8,7 @@
 
 
 module.exports = {
-    bodyParser: require('body-parser').raw({type:'*/* '}),
+    bodyParser: require('body-parser').json(),
 
     rawDataPrinter: function (options) {
         var self = this;

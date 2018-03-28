@@ -13,6 +13,8 @@ var wechat = require('wechat');
 var bluebird = require('bluebird');
 var WechatAPI = require('wechat-api');
 var fs = require('fs');
+var session = require('express-session')
+var merge = require('./src/util/merge')
 
 bluebird.promisifyAll(rediz.RedisClient.prototype);
 bluebird.promisifyAll(rediz.Multi.prototype);
@@ -21,14 +23,16 @@ var DemoServer = require('./src/demoServer');
 var handler_demoServer = new DemoServer(redis);
 
 var fakeResponse = require('./src/middleware/fakeResponse')
-var requestPrinter = require('./src/middleware/requestPrinter');
+var requestPrinter = require('./src/middleware/requestPrinter')
+var FakeRequest = require('./src/middleware/fakeRequest')
 var bodyParser = requestPrinter.bodyParser
 var rawDataPrinter = requestPrinter.rawDataPrinter({isEnable: true})
 //use test server or not
 var testMode = true;
-var fakeMode = false;
+var fakeMode = true;
 
-//var express = Express();
+
+
 var app = express();
 
 redis.on('error', function (err) {
@@ -69,51 +73,19 @@ redis.on('error', function (err) {
     console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
 });
 
-
-//TODO: replace with node router
-//fake return, for debugging
-var wechat_test = function (config, func) {
-    var fun = func;
-    var config = config;
-
-    var client = function (req, res, next) {
-        //Set to true to get a fake return with any request.
-        if (fakeMode) {
-            req.weixin = {
-                "ToUserName": "gh_811891b39f33",
-                "FromUserName": "oIIy1t9lPOfnGLlclJaRQZqZJWuk",
-                "CreateTime": "1503504430",
-                "MsgType": "text",
-                "Content": "/::)happily",
-                "MsgId": "6457502356607278610"
-            };
-            res.reply = function (json) {
-                res.send(JSON.stringify(json))
-            }
-        } else {
-            console.log('errorevent - ');
-            fun = wechat(config, func)
-        }
-        fun(req, res, next);
-        next()
-    }
-    return client;
-}
-
-
 app.use(express.query());
-app.use('/wechat', fakeResponse({isEnable: false}))
+app.use(session({secret: 'keyboard cat', cookie: {maxAge: 60000}}));
 app.use('/wechat', bodyParser)
-app.use('/wechat', rawDataPrinter)
-app.use('/wechat', wechat_test(wechatConfig, function (req, res, next) {
-    var message = req.weixin;
-    console.log(JSON.stringify(message));
-}));
+app.use('/wechat', fakeResponse({isEnable: false}))
+app.use('/wechat', new FakeRequest(true).getFakeRequest)
+//app.use('/wechat', rawDataPrinter)
+
 app.use('/wechat', wechat(wechatConfig, handler_demoServer.handleMessage))
 
 //create node.js http server and listen on port
 var server = https.createServer(sslOptions, app).listen(443, function () {
     var host = server.address().address
     var port = server.address().port
-    console.log("Listern http://%s:%s", host, port)
+    console.log("Listen http://%s:%s", host, port)
 });
+
