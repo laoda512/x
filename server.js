@@ -61,8 +61,21 @@ if (!testMode) {
         checkSignature: false // 可选，默认为true。由于微信公众平台接口调试工具在明文模式下不发送签名，所以如要使用该测试工具，请将其设置为false
     };
     var api = new WechatAPI('wx1193af7037eb6f76', 'bf2271c652870f76be20c3afbb4deab4');
+    // api.uploadMedia('test2.gif','image',function(err,message){
+    //     if(err){
+    //         console.log(err)
+    //     }else{
+    //         console.log(message)
+    //     }
+    // })
 }
-
+api.getAccessToken(function (err, token) {
+    if (err) {
+        console.log(err)
+    } else {
+        console.log(token)
+    }
+})
 app.use(express.query());
 app.use(session({secret: 'keyboard cat', cookie: {maxAge: 60000}}));
 app.use('/wechat', bodyParser)
@@ -79,7 +92,9 @@ List.add('view', [
     }],
     ['回复{c}查看我的性取向', '这样的事情怎么好意思告诉你啦- -']
 ]);
-app.use('/wechat', wechat(wechatConfig, wechat.text( handler_demoServer.handleMessage)));
+app.use('/wechat', wechat(wechatConfig, wechat.text(handler_demoServer.handleMessage)));
+
+app.use('/wechat', wechat(wechatConfig, wechat.image(handler_demoServer.handleMessage)));
 
 //create node.js http server and listen on port
 var server = https.createServer(sslOptions, app).listen(443, function () {

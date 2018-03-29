@@ -16,8 +16,7 @@ var API = function (inClient) {
 }
 
 
-
-API.prototype.handleMessage = function (info,req, res, next) {
+API.prototype.handleMessage = function (info, req, res, next) {
 
     console.log('demo server handleMessage');
     var message = req.weixin;
@@ -28,7 +27,12 @@ API.prototype.handleMessage = function (info,req, res, next) {
         res.wait('view');
         return;
     } else {
-        res.reply('hehe');
+        res.reply({
+            type: 'image',
+            content:{
+                mediaId: "kA8UbuV87xZBE6iZoMi9MIACBBuwqWnvKgI-0XUhYLQ6JBmjmlOUz54V5jdMZPZf",
+            }
+        });
         return
         // 或者中断等待回复事务
         // res.nowait('hehe');
