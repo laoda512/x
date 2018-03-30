@@ -27,11 +27,14 @@ API.prototype.handleMessage = function (info, req, res, next) {
         res.wait('view');
         return;
     } else {
+        console.log("return message");
         res.reply({
-            type: 'image',
-            content:{
-                mediaId: "kA8UbuV87xZBE6iZoMi9MIACBBuwqWnvKgI-0XUhYLQ6JBmjmlOUz54V5jdMZPZf",
-            }
+            //type: 'image',
+            type:'music',
+            content:"&lt;msg&gt;&lt;emoji fromusername = \"xxx\" tousername = \"xxx\" type=\"2\" idbuffer=\"media:0_0\" md5=\"bbdd81f091db3ff7683dd7e7e287d78e\" len = \"233677\" productid=\"\" androidmd5=\"bbdd81f091db3ff7683dd7e7e287d78e\" androidlen=\"233677\" s60v3md5 = \"bbdd81f091db3ff7683dd7e7e287d78e\" s60v3len=\"233677\" s60v5md5 = \"bbdd81f091db3ff7683dd7e7e287d78e\" s60v5len=\"233677\" cdnurl = \"http://emoji.qpic.cn/wx_emoji/xiab3k6bHjOt2wia47Ejxq78rcuiaaiaROmDGF6pbZwJh0m3exYnYNOpopBeTib8fiapEI/\" designerid = \"\" thumburl = \"\" encrypturl = \"http://emoji.qpic.cn/wx_emoji/xiab3k6bHjOt2wia47Ejxq78rcuiaaiaROmDGF6pbZwJh0kepNT6vEpa9bWhC470BXeS/\" aeskey= \"010f8675ec0f137b5844d8a4bd16838d\" externurl = \"http://emoji.qpic.cn/wx_emoji/hiaovrmKTnTCibmOvRBTuZ8nSW2EKiaQMHJMgYrInw14bWXWO3CMo2kPCXkNN27Qgkb/\" externmd5 = \"552f8596610c3027d470499e102fd099\" width= \"607\" height= \"343\" &gt;&lt;/emoji&gt; &lt;/msg&gt;"
+            //content:{
+            //    mediaId: "kA8UbuV87xZBE6iZoMi9MIACBBuwqWnvKgI-0XUhYLQ6JBmjmlOUz54V5jdMZPZf",
+           // }
         });
         return
         // 或者中断等待回复事务
