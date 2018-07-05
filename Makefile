@@ -28,6 +28,17 @@ capture:
 # 	slimerjs_x:0.0.1 /bin/bash -c "\
 # 	slimerjs -CreateProfile /phantomjs/script/all/phantomjs/myNewProfile"
 
+test: 
+	docker run --rm -i \
+	-v $(CURDIR):/phantomjs/script/all \
+	-v $(CURDIR)/result:/phantomjs/script/result \
+	-v $(CURDIR)/phantomjs:/phantomjs/script/phantomjs \
+	--name $(container_name) \
+	slimerjs_x:0.0.1 /bin/bash -c " \
+	slimerjs \
+	/phantomjs/script/phantomjs/untitled.js https://www.toutiao.com/c/user/98010297733/ /phantomjs/script/result/test2.png $(word) $(mode) 	"
+
+
 
 start_redis:
 	nohup docker run  --rm \

@@ -11,10 +11,10 @@ var rediz = require("redis"),
 var sys = require('sys')
 var wechat = require('wechat');
 var bluebird = require('bluebird');
-var WechatAPI = require('wechat-api');
 var fs = require('fs');
 var session = require('express-session')
 var merge = require('./src/util/merge')
+var WechatAPI = require('wechat-api');
 
 bluebird.promisifyAll(rediz.RedisClient.prototype);
 bluebird.promisifyAll(rediz.Multi.prototype);
@@ -27,9 +27,12 @@ var requestPrinter = require('./src/middleware/requestPrinter')
 var FakeRequest = require('./src/middleware/fakeRequest')
 var bodyParser = requestPrinter.bodyParser
 var rawDataPrinter = requestPrinter.rawDataPrinter({isEnable: true})
+var mCallback = require('./src/util/DefaultCallback')
 //use test server or not
 var testMode = true;
 var fakeMode = false;
+
+var api=require('./src/util/API')
 
 redis.on('error', function (err) {
     console.log('errorevent - ' + redis.host + ': ' + redis.port + ' - ' + err);
@@ -37,11 +40,7 @@ redis.on('error', function (err) {
 
 
 //TODO: store in config file
-if (!testMode) {
-    var api = new WechatAPI('wx987b7963b6cbf3e2', 'b3731adce531050a30fd94da3fc36c76');
-} else {
-    var api = new WechatAPI('wx1193af7037eb6f76', 'bf2271c652870f76be20c3afbb4deab4');
-}
+
 
 api.getAccessToken(function (err, token) {
     if (err) {
@@ -93,6 +92,23 @@ var menu = {
                 }]
         }]
 }
-api.removeMenu(getCallback('rm menu'));
-api.createMenu(menu,getCallback('cr menu'));
+WechatAPI.patch("getKF", "https://api.weixin.qq.com/customservice/getkflist");
+WechatAPI.patch("createKF", "https://api.weixin.qq.com/customservice/kfaccount/add");
+var jsoninfo1={
+     "kf_account" : "kf1@gh_9a61b0c443f1",
+     "nickname" : "客服1",
+     "password" : "pswmd5",
+     "kf_id" : "test",
+     "kf_headimgurl": "https://www.baidu.com/img/pcindex_small.png"
+}
+api.uploadMaterial('./res/timg.jpg', 'image', mCallback);
+api.uploadMaterial('./res/timg.jpg', 'thumb', mCallback);
+api.uploadMaterial('test.gif', 'image', mCallback);
+api.uploadMaterial('test.gif', 'thumb', mCallback);
+// 调用刚扩展的方法，与其它 api 接口方法一样。
+//api.addKfAccount('test@gh_9a61b0c443f1', 'nickname', 'password', mCallback);
+//api.createKF(jsoninfo1, mCallback);
+//api.getCustomServiceList(mCallback)
+//api.removeMenu(getCallback('rm menu'));
+//api.createMenu(menu,getCallback('cr menu'));
 

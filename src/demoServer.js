@@ -70,6 +70,7 @@ function handleMessage(message, req, res, next) {
     if (message.FromUserName === 'diaosi') {
         // 回复屌丝(普通回复)
         res.reply('hehe');
+        api.sendText('openid', 'Hello world', callback);
     } else if (message.FromUserName === 'text') {
         //你也可以这样回复text类型的信息
         res.reply({
